@@ -1,5 +1,9 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
+const path = require('path');
+const fs = require("node:fs");
 let mainWindow;
+
+const musicDir = path.join(__dirname, "..","public","musicas");
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -7,6 +11,7 @@ function createWindow() {
     height: 600,
     webPreferences: {
       nodeIntegration: true,
+      preload: `${__dirname}/preload.js`
     },
   });
   mainWindow.loadURL('http://localhost:3000');
@@ -30,3 +35,14 @@ app.on('activate', () => {
     createWindow();
   }
 });
+
+ipcMain.on("music-upload", (event, file) =>{
+  const filePath = path.join(musicDir, file.name);
+  fs.writeFile(filePath, file.data, async (err) => {
+    if (err){
+      mainWindow.webContents.send("toast:recive", err)
+    }else{
+      mainWindow.webContents.send("toast:recive", "Arquivo carregado com sucesso")
+    }
+  })
+})
