@@ -1,4 +1,4 @@
-export default function AdicionarIcon({ onCLick }) {
+export default function AdicionarIcon({onClick}) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

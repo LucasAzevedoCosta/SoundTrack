@@ -42,7 +42,33 @@ ipcMain.on("music-upload", (event, file) =>{
     if (err){
       mainWindow.webContents.send("toast:recive", err)
     }else{
+      sendUpdateList()
       mainWindow.webContents.send("toast:recive", "Arquivo carregado com sucesso")
     }
   })
 })
+
+ipcMain.on("music-get", () =>{
+  sendUpdateList()
+})
+
+async function sendUpdateList(){
+  const files = await fs.promises.readdir(musicDir)
+  mainWindow.webContents.send("music-list", files)
+}
+
+ipcMain.on("music-delete", async (event, file) =>{
+  const filePath = path.join(musicDir, file);
+  fs.unlink(filePath, async (error) => {
+    if(error){
+      mainWindow.webContents.send("toast:recive", error)
+    }else {
+      sendUpdateList()  
+      mainWindow.webContents.send("toast:recive", "Arquivo deletado com sucesso")
+    }
+  })
+})
+
+ipcMain.on("music-to-play", (event, file) => {
+  mainWindow.webContents.send("music-playable", file)
+});
